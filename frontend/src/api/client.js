@@ -1,9 +1,13 @@
 import axios from 'axios';
 
-// Instancia única de axios. En desarrollo las peticiones a /api
-// pasan por el proxy de Vite hacia http://localhost:3000
+// En producción, VITE_API_URL apunta al backend de Render (SIN /api al final,
+// ej: https://sistema-vigilancia.onrender.com). En desarrollo usa localhost.
+// El sufijo /api se agrega aquí porque las rutas del backend viven bajo /api.
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+// Instancia única de axios
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: `${API_BASE}/api`,
 });
 
 // Adjunta el token JWT guardado en localStorage a cada petición
