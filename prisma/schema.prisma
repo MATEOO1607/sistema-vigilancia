@@ -1,0 +1,112 @@
+// Sistema de Vigilancia Ciudadana — FASE 1
+// Esquema de base de datos (PostgreSQL / Supabase)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum EstadoDenuncia {
+  Recibida
+  En_proceso @map("En proceso")
+  Resuelta
+  Reincidente
+  Descartada
+}
+
+// ============================================
+// MODELOS
+// ============================================
+
+model Rol {
+  id       Int       @id @default(autoincrement())
+  nombre   String    @unique
+  usuarios Usuario[]
+
+  @@map("roles")
+}
+
+model Usuario {
+  id           Int      @id @default(autoincrement())
+  nombre       String
+  identificador String  @unique // email
+  contrasena   String
+  rol_id       Int
+  estado       Boolean  @default(true)
+  rol          Rol      @relation(fields: [rol_id], references: [id])
+
+  denuncias_creadas   Denuncia[]     @relation("Denunciante")
+  bitacoras           Bitacora[]
+  notificaciones      Notificacion[]
+
+  @@map("usuarios")
+}
+
+model Responsable {
+  id     Int     @id @default(autoincrement())
+  nombre String
+  tipo   String
+  activo Boolean @default(true)
+
+  denuncias Denuncia[]
+
+  @@map("responsables")
+}
+
+model Denuncia {
+  id                    Int           @id @default(autoincrement())
+  codigo_unico          String        @unique
+  fecha_hora            DateTime      @default(now())
+  tipo_incidencia       String
+  descripcion           String
+  foto_url              String?
+  latitud               Decimal       @db.Decimal(10, 7)
+  longitud              Decimal       @db.Decimal(10, 7)
+  estado                EstadoDenuncia @default(Recibida)
+
+  id_usuario_denunciante  Int
+  id_responsable_asignado Int?
+
+  denunciante  Usuario      @relation("Denunciante", fields: [id_usuario_denunciante], references: [id])
+  responsable  Responsable? @relation(fields: [id_responsable_asignado], references: [id])
+
+  bitacoras     Bitacora[]
+  notificaciones Notificacion[]
+
+  @@map("denuncias")
+}
+
+model Bitacora {
+  id          Int      @id @default(autoincrement())
+  fecha_hora  DateTime @default(now())
+  tipo_accion String
+  id_usuario  Int
+  id_denuncia Int
+  detalle     String
+
+  usuario  Usuario  @relation(fields: [id_usuario], references: [id])
+  denuncia Denuncia @relation(fields: [id_denuncia], references: [id])
+
+  @@map("bitacora")
+}
+
+model Notificacion {
+  id                     Int      @id @default(autoincrement())
+  fecha_hora             DateTime @default(now())
+  mensaje                String
+  id_denuncia            Int
+  id_usuario_destinatario Int
+
+  denuncia       Denuncia @relation(fields: [id_denuncia], references: [id])
+  destinatario   Usuario  @relation(fields: [id_usuario_destinatario], references: [id])
+
+  @@map("notificaciones")
+}
