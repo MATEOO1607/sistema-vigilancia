@@ -7,8 +7,9 @@ Backend del Sistema de Vigilancia Ciudadana. JavaScript puro (ESM, sin TypeScrip
 - Backend en la raíz: `index.js` (servidor), `prisma/`, `src/{routes,controllers,middlewares,config}`.
 - Frontend en `frontend/`: Vite 8 + React 19 + Tailwind 4 (plugin `@tailwindcss/vite`, CSS con `@import "tailwindcss"`), `react-router-dom` 7, axios, Leaflet (`react-leaflet` 5, compatible con React 19).
 - Frontend: `src/api/client.js` (axios con interceptores de token y 401→login), `src/context/AuthContext.jsx` (`useAuth`, `rutaSegunRol`; sesión en `localStorage`: `token` + `usuario`), `src/components/{RutaProtegida,Header,MapaDenuncias}.jsx`, `src/pages/{Login,Registro,Ciudadano,Admin}.jsx`, `src/utils/formato.js`.
-- Rutas web: `/login`, `/registro` (auto-login tras registrar), `/ciudadano` (rol Ciudadano), `/admin` (Operador/Admin; tabla + modales Ver Detalles y Actualizar Estado + mapa).
+- Rutas web: `/login`, `/registro` (auto-login tras registrar), `/ciudadano` (rol Ciudadano), `/admin` (Operador/Admin; dashboard de indicadores CU04 + tabla + modales Ver Detalles y Actualizar Estado + mapa).
 - Producción: sin proxy de Vite; `frontend/src/api/client.js` construye la base como `${VITE_API_URL || 'http://localhost:3000'}/api` — en Vercel definir `VITE_API_URL` (URL de Render SIN `/api` al final). CORS abierto (`cors()`) en el backend; Render usa `npm start` (node index.js) y respeta `PORT`.
+- Despliegue: backend en Render (https://vigilancia-backend-olv8.onrender.com), frontend en Vercel (Root Directory `frontend`). `frontend/vercel.json` reescribe todas las rutas a `/index.html` (SPA: sin él, recargar `/registro` o `/admin` da 404).
 
 ## Comandos
 

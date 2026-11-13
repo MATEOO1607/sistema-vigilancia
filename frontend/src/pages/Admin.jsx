@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '../api/client.js';
 import Header from '../components/Header.jsx';
 import MapaDenuncias from '../components/MapaDenuncias.jsx';
@@ -38,11 +38,40 @@ export default function Admin() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtroEstado]);
 
+  // Indicadores calculados en base a las denuncias cargadas de la API
+  const indicadores = useMemo(
+    () => ({
+      total: denuncias.length,
+      pendientes: denuncias.filter((d) => d.estado === 'Recibida').length,
+      resueltas: denuncias.filter((d) => d.estado === 'Resuelta').length,
+    }),
+    [denuncias],
+  );
+
   return (
     <div className="min-h-screen bg-slate-100">
       <Header titulo="Panel Administrativo" />
 
       <main className="mx-auto max-w-6xl px-4 py-6">
+        {/* Dashboard de indicadores (CU04) */}
+        <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 p-5 text-white shadow-lg">
+            <p className="text-sm font-medium text-blue-100">📋 Total Denuncias</p>
+            <p className="mt-1 text-4xl font-bold">{indicadores.total}</p>
+            <p className="mt-1 text-xs text-blue-200">Registradas en el sistema</p>
+          </div>
+          <div className="rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 p-5 text-white shadow-lg">
+            <p className="text-sm font-medium text-amber-100">⏳ Pendientes</p>
+            <p className="mt-1 text-4xl font-bold">{indicadores.pendientes}</p>
+            <p className="mt-1 text-xs text-amber-200">En estado "Recibida"</p>
+          </div>
+          <div className="rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 p-5 text-white shadow-lg">
+            <p className="text-sm font-medium text-emerald-100">✅ Resueltas</p>
+            <p className="mt-1 text-4xl font-bold">{indicadores.resueltas}</p>
+            <p className="mt-1 text-xs text-emerald-200">En estado "Resuelta"</p>
+          </div>
+        </section>
+
         <div className="mb-4 flex items-center gap-3">
           <label htmlFor="filtro" className="text-sm font-medium text-slate-700">
             Filtrar por estado:
